@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>#1 - Overlay timer</title>
+    <style>
+        /* Estilo do contêiner do fundo com transparência */
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Fundo preto com 70% de transparência */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+        }
+
+        /* Estilo do conteiner do anúncio */
+        #ad-container {
+            position: relative;
+            width: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            color: #333;
+            z-index: 2;
+        }
+
+        /* Barra de progresso */
+        #progress-bar-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: -webkit-fill-available;
+            height: 5px;
+            background-color: #A1A1A1;
+			margin: 5px;
+        }
+
+        #progress-bar {
+            height: 100%;
+            width: 0;
+            background-color: #DEFFFF;
+        }
+
+        /* Botão de fechar */
+        #close-btn {
+            position: absolute;
+            top: -12px;
+            right: -13px;
+            background-color: #fff;
+            color: #000;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            font-size: 21px;
+    		line-height: 21px;
+            display: none;
+            cursor: pointer;
+            justify-content: center;
+            align-items: center;
+			border: 1px solid #565656;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Camada de fundo transparente -->
+    <div id="overlay">
+        <!-- Conteiner do anúncio -->
+        <div id="ad-container">
+            <!-- Barra de progresso -->
+            <div id="progress-bar-container">
+                <div id="progress-bar"></div>
+            </div>
+
+            <!-- Conteúdo do anúncio -->
+            <div id="ad-banner"><img src="images/banner-300x600.png" width="300" alt=""></div>
+
+            <!-- Botão de fechar -->
+            <button id="close-btn">&times;</button>
+        </div>
+    </div>
+
+    <script>
+        // Variáveis de configuração
+        var progressBar = document.getElementById("progress-bar");
+        var closeButton = document.getElementById("close-btn");
+        var overlay = document.getElementById("overlay");
+        var progressTime = 5000; // Tempo total para completar (5 segundos)
+        var intervalTime = 10; // Intervalo para atualizar a barra
+
+        // Função para iniciar a animação da barra de progresso
+        function startProgressBar() {
+            var width = 0;
+            var increment = (intervalTime / progressTime) * 100;
+
+            // Atualiza a largura da barra em intervalos regulares
+            var interval = setInterval(function() {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    progressBar.style.width = '100%';
+                    closeButton.style.display = 'flex'; // Mostrar o botão de fechar
+                } else {
+                    width += increment;
+                    progressBar.style.width = width + '%';
+                }
+            }, intervalTime);
+        }
+
+        // Função para fechar o anúncio
+        closeButton.addEventListener("click", function() {
+            overlay.style.display = "none"; // Esconde o overlay com o anúncio
+        });
+
+        // Iniciar a barra de progresso quando a página carregar
+        window.onload = startProgressBar;
+    </script>
+
+</body>
+</html>

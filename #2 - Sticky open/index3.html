@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slider Banner</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        #banner-slider {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 195%;
+            height: 170px;
+            overflow: hidden;
+            display: flex;
+            transition: transform 0.5s ease, height 1s ease; /* Adiciona transição de altura */
+			padding: 10px;
+			box-sizing: border-box;
+        }
+
+        .slide {
+            min-width: 50%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+            position: relative;
+			border-radius: 15px;
+            transition: height 1s ease;
+        }
+
+        #scene1 {
+            background-color: #3498db;
+			margin-right: 10px;
+        }
+
+        #scene2 {
+            background-color: #e74c3c;
+            height: 100%; /* Altura inicial da cena 2 */
+        }
+
+        #control-btn {
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            padding: 10px;
+            cursor: pointer;
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease;
+        }
+
+        .hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Botão de fechar estilo ADS Google */
+        #close-btn {
+            position: absolute;
+            top: 10px;
+            right: 50px;
+            width: 27px;
+            height: 27px;
+            background: #FFFFFF;
+			border-radius:50px;
+			border: 1px solid #565656;
+            font-size: 18px;
+			line-height:25px;
+			text-align:center;
+            color: #000000;
+            cursor: pointer;
+            z-index: 2;
+            display: none; /* Oculto até que o contador termine */
+        }
+
+        /* Estilo do contador regressivo */
+        #timer {
+            position: absolute;
+            top: 10px;
+            right: 50px;
+            color: #000000;
+            width: 25px;
+			height: 25px;
+			font-size: 14px;
+			line-height:25px;
+			text-align:center;
+            z-index: 2;
+			background: #FFFFFF;
+			border-radius:50px;
+			border: 1px solid #565656;
+            display: none; /* Oculto até o clique no banner */
+        }
+    </style>
+</head>
+<body>
+
+	<div id="geral">
+		<div id="banner-slider">
+			<div id="scene1" class="slide">
+				AD
+				<div id="control-btn"><img src="images/arrow.svg" width="38" alt=""></div>
+			</div>
+			<div id="scene2" class="slide">
+				PROMOCODE
+			</div>
+		</div>
+	</div>
+
+    <button id="close-btn">×</button>
+    <div id="timer">5</div> <!-- Contador regressivo -->
+
+    <script>
+        let currentSlide = 0;
+        let autoSlideInterval;
+        let countdownTimer;
+        let countdownValue = 5;
+        const bannerSlider = document.getElementById('banner-slider');
+        const controlBtn = document.getElementById('control-btn');
+        const closeBtn = document.getElementById('close-btn');
+        const timerDisplay = document.getElementById('timer');
+        const scene2 = document.getElementById('scene2');
+        let hasClicked = false; // Para verificar se o banner já foi clicado
+
+        function moveToSlide(slideIndex) {
+            if (slideIndex === 0) {
+                bannerSlider.style.transform = 'translateX(0%)'; // Cena 1 completa
+                bannerSlider.style.height = '170px'; // Redefine a altura do banner
+                controlBtn.classList.remove('hidden'); // Mostra a seta
+            } else if (slideIndex === 0.5) {
+                bannerSlider.style.transform = 'translateX(-5%)'; // Mostrar 20% da cena 2
+            } else {
+                bannerSlider.style.transform = 'translateX(-50%)'; // Cena 2 completa
+                controlBtn.classList.add('hidden'); // Esconde a seta na cena 2
+                setTimeout(() => {
+                    bannerSlider.style.height = '600px'; // Aumenta a altura para 600px
+                }, 500); // Delay para garantir que a transição de slide termine antes
+            }
+            currentSlide = slideIndex;
+        }
+
+        function stopAutoSlide() {
+            clearInterval(autoSlideInterval);
+        }
+
+        function startPartialSlideAnimation() {
+            let isAtPartialSlide = false;
+            autoSlideInterval = setInterval(() => {
+                if (isAtPartialSlide) {
+                    moveToSlide(0); // Volta para a primeira cena
+                } else {
+                    moveToSlide(0.5); // Desliza parcialmente para a segunda cena
+                }
+                isAtPartialSlide = !isAtPartialSlide;
+            }, 1000); // Repetição a cada 1 segundo
+        }
+
+        function startCountdown() {
+            countdownTimer = setInterval(() => {
+                countdownValue--;
+                timerDisplay.textContent = countdownValue;
+
+                if (countdownValue <= 0) {
+                    clearInterval(countdownTimer);
+                    closeBtn.style.display = 'block'; // Mostra o botão de fechar
+                    timerDisplay.style.display = 'none'; // Esconde o contador
+                }
+            }, 1000); // Decrementa o contador a cada 1 segundo
+        }
+
+        window.onload = function() {
+            startPartialSlideAnimation();
+        };
+
+        // Função que lida com o clique no banner ou seta
+        function handleClick() {
+            stopAutoSlide();
+            moveToSlide(1); // Vai para a segunda cena completa
+
+            if (!hasClicked) {
+                hasClicked = true;
+                startCountdown(); // Inicia o contador apenas após o clique
+                timerDisplay.style.display = 'block'; // Mostra o contador
+            }
+        }
+
+        controlBtn.addEventListener('click', handleClick);
+
+        closeBtn.addEventListener('click', function() {
+            document.getElementById('geral').style.display = 'none'; // Fecha o banner
+            closeBtn.style.display = 'none'; // Esconde o botão de fechar
+        });
+
+        let startX = 0;
+        bannerSlider.addEventListener('mousedown', (e) => startX = e.clientX);
+
+        bannerSlider.addEventListener('mouseup', (e) => {
+            if (e.clientX < startX) { // Arrastou para a esquerda
+                handleClick();
+            }
+        });
+
+        bannerSlider.addEventListener('click', handleClick);
+    </script>
+
+</body>
+</html>

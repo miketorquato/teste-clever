@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>#2 - Sticky open</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+			background-color: rgba(0, 0, 0, 0.7); /* Fundo preto com 70% de transparência */
+        }
+		
+		.centralizar {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100vh;
+		}
+		
+		#geral{
+			width: 300px;
+			margin: auto;
+			overflow: auto;
+			display: inherit;
+			background-color: #FFFFFF; 
+			height: 600px;
+			position: relative;		
+		}
+
+        #banner-slider {
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            width: 195%;
+            display: flex;
+            transition: transform 0.5s ease, height 1s ease;
+            padding: 0px 10px;
+            box-sizing: border-box;
+        }
+
+        .slide {
+            min-width: 50%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+            position: relative;
+			border-radius: 8px;
+            transition: height 1s ease;
+            position: relative;
+        }
+
+        .slide img {
+            position: absolute;
+            bottom: 0px;
+            border-radius: 8px;
+            width: 100%;
+        }
+
+        #scene1 {
+            margin-right: 10px;
+			cursor: pointer;
+        }
+
+        #scene2 {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        #control-btn {
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            padding: 10px;
+            cursor: pointer;
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease;
+        }
+
+        .hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Barra de progresso estilo Instagram */
+        #progress-bar {
+            position: absolute;
+            top: 0px;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background-color: rgba(255, 255, 255, 0.5);
+            z-index: 1;
+            display: none; /* Agora será controlado via JavaScript */
+			margin: 0 auto;
+        }
+
+        #progress-bar-fill {
+            height: 100%;
+            background-color: #CB1200;
+            width: 0%; /* Começa em 0% */
+            transition: width 5s linear; /* Aumenta ao longo de 5 segundos */
+        }
+
+        /* Botão de fechar estilo ADS Google */
+        #close-btn {
+            position: absolute;
+            top: -12px;
+            right: 8px;
+            width: 27px;
+            height: 27px;
+            background: #FFFFFF;
+            border-radius: 50px;
+            border: 1px solid #565656;
+            font-size: 18px;
+            line-height: 25px;
+            text-align: center;
+            color: #000000;
+            cursor: pointer;
+            z-index: 2;
+            display: none;
+        }
+
+        /* Estilo do contador regressivo */
+        #timer {
+            position: absolute;
+            top: -12px;
+            right: 8px;
+            color: #000000;
+            width: 25px;
+            height: 25px;
+            font-size: 14px;
+            line-height: 25px;
+            text-align: center;
+            z-index: 2;
+            background: #FFFFFF;
+            border-radius: 50px;
+            border: 1px solid #565656;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+	<div class="centralizar">
+		<div id="geral">
+			<div id="banner-slider">
+
+				<button id="close-btn">×</button>
+				<div id="timer">5</div> <!-- Contador regressivo -->
+
+				<div id="scene1" class="slide">
+					<img src="images/banner-500x150-1.gif" alt="">
+					<div id="control-btn"></div>
+				</div>
+
+				<div id="scene2" class="slide">
+
+					<div id="progress-bar">
+						<div id="progress-bar-fill"></div>
+					</div>
+
+					<img src="images/banner-500x150-2.gif" alt="">
+				</div>
+			</div>
+		</div>
+	</div>	
+
+    <script>
+        let currentSlide = 0;
+        let autoSlideInterval;
+        let countdownTimer;
+        let countdownValue = 5;
+        const bannerSlider = document.getElementById('banner-slider');
+        const controlBtn = document.getElementById('control-btn');
+        const closeBtn = document.getElementById('close-btn');
+        const timerDisplay = document.getElementById('timer');
+        const progressBar = document.getElementById('progress-bar');
+        const progressBarFill = document.getElementById('progress-bar-fill');
+        const scene2 = document.getElementById('scene2');
+        let hasClicked = false;
+
+        // Função para ajustar a altura do banner baseado na imagem da scene1
+        function adjustBannerHeight(sceneImage) {
+            bannerSlider.style.height = sceneImage.clientHeight + 'px';
+        }
+
+        // Função para pegar a altura da imagem dentro da scene2
+        function adjustScene2Height() {
+            const scene2Image = document.querySelector('#scene2 img');
+            return scene2Image.clientHeight;
+        }
+
+        function moveToSlide(slideIndex) {
+            if (slideIndex === 0) {
+                bannerSlider.style.transform = 'translateX(0%)';
+                adjustBannerHeight(document.querySelector('#scene1 img'));
+                controlBtn.classList.remove('hidden');
+            } else if (slideIndex === 0.5) {
+                bannerSlider.style.transform = 'translateX(-10%)';
+            } else {
+                bannerSlider.style.transform = 'translateX(-50%)';
+                controlBtn.classList.add('hidden');
+                setTimeout(() => {
+                    bannerSlider.style.height = adjustScene2Height() + 'px';
+                }, 500);
+            }
+            currentSlide = slideIndex;
+        }
+
+        function stopAutoSlide() {
+            clearInterval(autoSlideInterval);
+        }
+
+        function startPartialSlideAnimation() {
+            let isAtPartialSlide = false;
+            autoSlideInterval = setInterval(() => {
+                if (isAtPartialSlide) {
+                    moveToSlide(0);
+                } else {
+                    moveToSlide(0.5);
+                }
+                isAtPartialSlide = !isAtPartialSlide;
+            }, 1000);
+        }
+
+        function startCountdown() {
+            countdownTimer = setInterval(() => {
+                countdownValue--;
+                timerDisplay.textContent = countdownValue;
+
+                if (countdownValue <= 0) {
+                    clearInterval(countdownTimer);
+                    closeBtn.style.display = 'block';
+                    timerDisplay.style.display = 'none';
+                }
+            }, 1000);
+        }
+
+        function startProgressBar() {
+            progressBar.style.display = 'block'; // Mostra a barra de progresso
+            progressBarFill.style.width = '0%'; // Reinicia a largura em 0%
+
+            // Após um pequeno atraso, a barra começa a crescer até 100% em 5 segundos
+            setTimeout(() => {
+                progressBarFill.style.width = '100%';
+            }, 50);
+        }
+
+        // Função para redirecionar o usuário após 5 segundos
+        function redirectToURL() {
+            setTimeout(() => {
+                window.location.href = "https://stake.com/"; // Redireciona após 5 segundos
+            }, 5000);
+        }
+
+        window.onload = function() {
+            adjustBannerHeight(document.querySelector('#scene1 img'));
+            startPartialSlideAnimation();
+        };
+
+        function handleClick() {
+            stopAutoSlide();
+            moveToSlide(1);
+
+            if (!hasClicked) {
+                hasClicked = true;
+                startCountdown();
+                timerDisplay.style.display = 'block';
+                startProgressBar();
+                redirectToURL(); // Inicia o redirecionamento após clicar na cena 1
+            }
+        }
+
+        controlBtn.addEventListener('click', handleClick);
+
+        closeBtn.addEventListener('click', function() {
+            document.getElementById('geral').style.display = 'none';
+            closeBtn.style.display = 'none';
+        });
+
+        let startX = 0;
+        bannerSlider.addEventListener('mousedown', (e) => startX = e.clientX);
+
+        bannerSlider.addEventListener('mouseup', (e) => {
+            if (e.clientX < startX) {
+                handleClick();
+            }
+        });
+
+        bannerSlider.addEventListener('click', handleClick);
+    </script>
+
+</body>
+</html>

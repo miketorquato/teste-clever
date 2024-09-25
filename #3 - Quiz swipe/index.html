@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cards Sobrepostos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        /* Container principal */
+        .card-container {
+            position: relative;
+            width: 300px;
+            height: 400px;
+            perspective: 1000px; /* Dá profundidade ao efeito 3D */
+        }
+
+        /* Estilo base para os cards */
+        .card {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.5s ease, opacity 0.5s ease, z-index 0.5s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+            cursor: pointer;
+        }
+
+        /* Configurações específicas de cada card */
+        .card-1 {
+            background-color: #3498db;
+            z-index: 3;
+        }
+
+        .card-2 {
+            background-color: #e74c3c;
+            z-index: 2;
+            top: 10px; /* Move o card 2 ligeiramente para baixo */
+        }
+
+        .card-3 {
+            background-color: #f39c12;
+            z-index: 1;
+            top: 20px; /* Move o card 3 ainda mais para baixo */
+        }
+
+        /* Animação de desaparecimento para os cards */
+        .slide-out {
+            transform: translateX(150%); /* Desliza para fora da tela para a direita */
+            opacity: 0; /* Desaparece gradualmente */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Container de cards -->
+    <div class="card-container">
+        <div class="card card-1" onclick="slideOutCard(this)">Card 1</div>
+        <div class="card card-2" onclick="slideOutCard(this)">Card 2</div>
+        <div class="card card-3" onclick="slideOutCard(this)">Card 3</div>
+    </div>
+
+    <script>
+        function slideOutCard(card) {
+            // Aplica a classe que faz o card deslizar para o lado e desaparecer
+            card.classList.add('slide-out');
+
+            // Remove o card depois que a animação termina
+            setTimeout(function() {
+                card.style.display = 'none';
+            }, 500); // O tempo deve coincidir com o tempo da transição (0.5s)
+        }
+    </script>
+
+</body>
+</html>

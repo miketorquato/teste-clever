@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contagem Regressiva com Ícone de Fechar</title>
+    <style>
+        /* Estilo do contêiner do anúncio */
+        #ad-container {
+            position: relative;
+            width: 300px;
+            height: 250px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: #333;
+        }
+
+        /* Contagem regressiva no centro do anúncio */
+        #countdown {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 16px;
+            color: #555;
+        }
+
+        /* Ícone de fechar */
+        #close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #ff0000;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            font-size: 16px;
+            display: none;
+            cursor: pointer;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ad-container">
+        <div id="countdown">5</div>
+        <button id="close-btn">&times;</button>
+        <!-- Conteúdo do anúncio -->
+        <p>Anúncio</p>
+    </div>
+
+    <script>
+        // Tempo de contagem regressiva (5 segundos)
+        var countdownTime = 5;
+        var countdownElement = document.getElementById("countdown");
+        var closeButton = document.getElementById("close-btn");
+        var adContainer = document.getElementById("ad-container");
+
+        // Função de contagem regressiva
+        function startCountdown() {
+            var interval = setInterval(function() {
+                countdownTime--;
+                countdownElement.innerHTML = countdownTime;
+
+                // Quando a contagem chegar a 0, mostrar o botão de fechar
+                if (countdownTime <= 0) {
+                    clearInterval(interval);
+                    countdownElement.style.display = "none";
+                    closeButton.style.display = "flex";  // Mostrar o botão
+                }
+            }, 1000); // Atualiza a cada segundo
+        }
+
+        // Iniciar contagem regressiva
+        startCountdown();
+
+        // Função para fechar o anúncio
+        closeButton.addEventListener("click", function() {
+            adContainer.style.display = "none"; // Esconde o anúncio
+        });
+    </script>
+
+</body>
+</html>

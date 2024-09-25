@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Stories Timer</title>
+    <style>
+        /* Container da barra de progresso */
+        .progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background-color: #e0e0e0;
+        }
+
+        /* A barra de progresso em si */
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #3b5998; /* Cor da barra, pode ser ajustada */
+            transition: width 0.1s ease;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Barra de progresso -->
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <script>
+        // Duração do "story" em milissegundos (por exemplo, 5 segundos)
+        var storyDuration = 5000; 
+
+        // Função para animar a barra de progresso
+        function startProgressBar(duration) {
+            var progressBar = document.getElementById("progress-bar");
+            var startTime = Date.now();
+
+            function updateProgress() {
+                var elapsedTime = Date.now() - startTime;
+                var progressPercentage = (elapsedTime / duration) * 100;
+                
+                // Atualiza a largura da barra de progresso
+                progressBar.style.width = progressPercentage + "%";
+
+                // Continua animando até o fim do tempo
+                if (elapsedTime < duration) {
+                    requestAnimationFrame(updateProgress);
+                } else {
+                    progressBar.style.width = "100%"; // Garantir que a barra fique cheia
+                    // Aqui você pode adicionar lógica para passar para o próximo story
+                    console.log("Story finished!");
+                }
+            }
+
+            updateProgress(); // Inicia a animação
+        }
+
+        // Inicia a barra de progresso ao carregar a página
+        window.onload = function() {
+            startProgressBar(storyDuration);
+        };
+    </script>
+
+</body>
+</html>

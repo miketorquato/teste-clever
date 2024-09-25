@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>#3 - Quiz swipe</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="hammer.min.js"></script>
+    <style>
+        *, *:before, *:after {
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+        }
+
+        body {
+            background: #4E5558;
+            overflow: hidden;
+            font-family: sans-serif;
+        }
+
+        .tinder {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            opacity: 0;
+            transition: opacity 0.1s ease-in-out;
+			margin-top: 20px;
+        }
+
+        .loaded.tinder {
+            opacity: 1;
+        }
+
+        .tinder--status {
+            position: absolute;
+            top: 50%;
+            margin-top: -30px;
+            z-index: 2;
+            width: 100%;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .tinder--cards {
+            flex-grow: 1;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 1;
+        }
+
+        .tinder--card {
+            display: inline-block;
+            width: 310px;
+            height: 610px;
+            border-radius: 8px;
+            overflow: hidden;
+            position: absolute;
+			top:0px;
+            will-change: transform;
+            transition: all 0.3s ease-in-out;
+            cursor: -webkit-grab;
+            cursor: grab;
+            border: 5px solid transparent; /* Adiciona borda transparente para a animação de feedback */
+        }
+
+        .tinder--card img {
+            max-width: 100%;
+            pointer-events: none;
+        }
+
+        .moving.tinder--card {
+            transition: none;
+            cursor: -webkit-grabbing;
+            cursor: grabbing;
+        }
+
+        /* Barra de progresso */
+        .progress-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 5px;
+            background-color: #3498db;
+            width: 0%;
+            transition: width 10s linear;
+        }
+
+        .tinder--buttons {
+            flex: 0 0 100px;
+            text-align: center;
+			position: absolute;
+			top: 464px;
+			display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 99;
+        }
+
+        .tinder--buttons button {
+			background: transparent;
+    		border: 0px;
+            margin: 0 8px;
+        }
+
+        .tinder--buttons button:focus {
+            outline: 0;
+        }
+
+        /* Adicionando feedback de resposta correta/errada */
+        .correct {
+            border-color: #2ecc71; /* Verde para resposta correta */
+        }
+
+        .incorrect {
+            border-color: #e74c3c; /* Vermelho para resposta errada */
+        }
+
+        /* Ocultar os botões */
+        .hide-buttons {
+            display: none;
+        }
+
+        /* Estilo para tornar o terceiro card clicável */
+        .clickable {
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+<div class="tinder">
+    <div class="tinder--cards">
+        <div class="tinder--card">
+            <div class="progress-bar"></div>
+            <img src="images/hollywoood-300x600-1.png" alt="">
+        </div>
+        <div class="tinder--card">
+            <div class="progress-bar"></div>
+            <img src="images/hollywoood-300x600-2.png" alt="">
+        </div>
+        <div class="tinder--card clickable" onclick="window.location.href='https://m.hollywoodbets.co.mz/'">
+            <div class="progress-bar"></div>
+            <img src="images/hollywoood-300x600-3.png" alt="">
+        </div>
+		
+		<div class="tinder--buttons">
+			<button id="nope"><img src="images/ico-false.png" alt=""></button>
+			<button id="love"><img src="images/ico-true.png" alt=""></button>
+		</div>	
+    </div>
+</div>
+
+<script type="text/javascript">
+    'use strict';
+
+    var tinderContainer = document.querySelector('.tinder');
+    var allCards = document.querySelectorAll('.tinder--card');
+    var nope = document.getElementById('nope');
+    var love = document.getElementById('love');
+    var buttonContainer = document.querySelector('.tinder--buttons'); // Container dos botões
+    var correctAnswers = [true, false]; // Respostas corretas para os dois primeiros cards
+    var progressTimeout; // Variável para controlar o tempo de progresso
+
+    function startProgressBar(card) {
+        var progressBar = card.querySelector('.progress-bar');
+        progressBar.style.width = '0%';
+        
+        // Inicia a animação da barra de progresso
+        setTimeout(function() {
+            progressBar.style.width = '100%';
+        }, 100); // Pequeno atraso para a animação de transição
+
+        // Remove o card automaticamente após 10 segundos
+        progressTimeout = setTimeout(function() {
+            card.classList.add('removed');
+            initCards(); // Atualiza os cards
+        }, 10000);
+    }
+
+    function initCards() {
+        var newCards = document.querySelectorAll('.tinder--card:not(.removed)');
+        newCards.forEach(function (card, index) {
+            card.style.zIndex = allCards.length - index;
+            card.style.transform = 'scale(' + (20 - index) / 20 + ') translateY(-' + 30 * index + 'px)';
+            card.style.opacity = (10 - index) / 10;
+        });
+        tinderContainer.classList.add('loaded');
+
+        // Verifica se o último card é o único restante e oculta os botões
+        if (newCards.length === 1 && newCards[0].classList.contains('no-interaction')) {
+            buttonContainer.classList.add('hide-buttons'); // Oculta os botões
+        } else {
+            // Inicia a barra de progresso no primeiro card visível
+            if (newCards.length > 0) {
+                clearTimeout(progressTimeout); // Limpa qualquer progresso anterior
+                startProgressBar(newCards[0]);
+            }
+        }
+    }
+
+    initCards();
+
+    allCards.forEach(function (el, index) {
+        // O terceiro card (que agora é clicável) ainda terá a barra de progresso
+        var hammertime = new Hammer(el);
+
+        hammertime.on('pan', function (event) {
+            el.classList.add('moving');
+        });
+
+        hammertime.on('pan', function (event) {
+            if (event.deltaX === 0) return;
+            if (event.center.x === 0 && event.center.y === 0) return;
+
+            tinderContainer.classList.toggle('tinder_love', event.deltaX > 0);
+            tinderContainer.classList.toggle('tinder_nope', event.deltaX < 0);
+
+            var xMulti = event.deltaX * 0.03;
+            var yMulti = event.deltaY / 80;
+            var rotate = xMulti * yMulti;
+
+            event.target.style.transform = 'translate(' + event.deltaX + 'px, ' + event.deltaY + 'px) rotate(' + rotate + 'deg)';
+        });
+
+        hammertime.on('panend', function (event) {
+            el.classList.remove('moving');
+            tinderContainer.classList.remove('tinder_love');
+            tinderContainer.classList.remove('tinder_nope');
+
+            var moveOutWidth = document.body.clientWidth;
+            var keep = Math.abs(event.deltaX) < 80 || Math.abs(event.velocityX) < 0.5;
+
+            event.target.classList.toggle('removed', !keep);
+
+            if (keep) {
+                event.target.style.transform = '';
+            } else {
+                var isCorrect = (event.deltaX > 0) === correctAnswers[index]; // Verifica se a resposta foi correta
+                if (isCorrect) {
+                    el.classList.add('correct'); // Aplica a classe para resposta correta
+                } else {
+                    el.classList.add('incorrect'); // Aplica a classe para resposta errada
+                }
+
+                setTimeout(function () {
+                    var endX = Math.max(Math.abs(event.velocityX) * moveOutWidth, moveOutWidth);
+                    var toX = event.deltaX > 0 ? endX : -endX;
+                    var endY = Math.abs(event.velocityY) * moveOutWidth;
+                    var toY = event.deltaY > 0 ? endY : -endY;
+                    var xMulti = event.deltaX * 0.03;
+                    var yMulti = event.deltaY / 80;
+                    var rotate = xMulti * yMulti;
+
+                    event.target.style.transform = 'translate(' + toX + 'px, ' + (toY + event.deltaY) + 'px) rotate(' + rotate + 'deg)';
+                    initCards();
+                }, 300); // Exibe a animação por 300ms antes de remover o card
+            }
+        });
+    });
+
+    function createButtonListener(love) {
+        return function (event) {
+            var cards = document.querySelectorAll('.tinder--card:not(.removed)');
+            if (!cards.length) return false;
+
+            var card = cards[0];
+            var index = Array.from(allCards).indexOf(card);
+            if (index === 2) return; // Impede a interação no terceiro card
+
+            var moveOutWidth = document.body.clientWidth * 1.5;
+            var isCorrect = love === correctAnswers[index];
+
+            card.classList.add('removed');
+
+            if (isCorrect) {
+                card.classList.add('correct'); // Animação para resposta correta
+            } else {
+                card.classList.add('incorrect'); // Animação para resposta errada
+            }
+
+            setTimeout(() => {
+                if (love) {
+                    card.style.transform = 'translate(' + moveOutWidth + 'px, -100px) rotate(-30deg)';
+                } else {
+                    card.style.transform = 'translate(-' + moveOutWidth + 'px, -100px) rotate(30deg)';
+                }
+
+                initCards();
+            }, 300); // Exibe a animação por 300ms antes de remover o card
+
+            event.preventDefault();
+        };
+    }
+
+    var nopeListener = createButtonListener(false);
+    var loveListener = createButtonListener(true);
+
+    nope.addEventListener('click', nopeListener);
+    love.addEventListener('click', loveListener);
+</script>
+</body>
+</html>

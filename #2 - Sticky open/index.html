@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slider Banner</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+
+        #banner-slider {
+            position: fixed;
+            bottom: 0; 
+            left: 0;
+            width: 195%;
+            height: 170px;
+            overflow: hidden;
+            display: flex;
+            transition: transform 0.5s ease;
+			padding: 10px;
+			box-sizing: border-box;
+        }
+
+        .slide {
+            min-width: 50%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+            position: relative;
+			border-radius: 15px;
+        }
+
+        #scene1 {
+            background-color: #3498db;
+			margin-right: 10px;
+        }
+
+        #scene2 {
+            background-color: #e74c3c;
+        }
+
+        #control-btn {
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            padding: 10px;
+            
+            cursor: pointer;
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease;
+        }
+
+        /*#control-btn:after {
+            content: '»';
+            font-size: 24px;
+            color: #333;
+        }*/
+
+        .hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+	<div id="geral">
+		<div id="banner-slider">
+			<div id="scene1" class="slide">
+				AD
+				<div id="control-btn"><img src="images/arrow.svg" width="38" alt=""></div>
+			</div>
+			<div id="scene2" class="slide">
+				PROMOCODE
+			</div>
+		</div>
+	</div>
+
+    <script>
+        let currentSlide = 0;
+        let autoSlideInterval;
+        const bannerSlider = document.getElementById('banner-slider');
+        const controlBtn = document.getElementById('control-btn');
+
+        function moveToSlide(slideIndex) {
+            if (slideIndex === 0) {
+                bannerSlider.style.transform = 'translateX(0%)'; // Cena 1 completa
+                controlBtn.classList.remove('hidden'); // Mostra a seta
+            } else if (slideIndex === 0.5) {
+                bannerSlider.style.transform = 'translateX(-5%)'; // Mostrar 20% da cena 2
+            } else {
+                bannerSlider.style.transform = 'translateX(-50%)'; // Cena 2 completa
+                controlBtn.classList.add('hidden'); // Esconde a seta na cena 2
+            }
+            currentSlide = slideIndex;
+        }
+
+        function stopAutoSlide() {
+            clearInterval(autoSlideInterval);
+        }
+
+        function startPartialSlideAnimation() {
+            let isAtPartialSlide = false;
+            autoSlideInterval = setInterval(() => {
+                if (isAtPartialSlide) {
+                    moveToSlide(0); // Volta para a primeira cena
+                } else {
+                    moveToSlide(0.5); // Desliza parcialmente para a segunda cena
+                }
+                isAtPartialSlide = !isAtPartialSlide;
+            }, 1000); // Repetição a cada 1 segundo
+        }
+
+        window.onload = startPartialSlideAnimation;
+
+        controlBtn.addEventListener('click', function() {
+            stopAutoSlide();
+            moveToSlide(1); // Vai para a segunda cena completa
+        });
+
+        let startX = 0;
+        bannerSlider.addEventListener('mousedown', (e) => startX = e.clientX);
+
+        bannerSlider.addEventListener('mouseup', (e) => {
+            if (e.clientX < startX) { // Arrastou para a esquerda
+                stopAutoSlide();
+                moveToSlide(1); // Vai para a segunda cena completa
+            }
+        });
+
+        bannerSlider.addEventListener('click', function() {
+            stopAutoSlide();
+            moveToSlide(1); // Vai para a segunda cena completa
+        });
+    </script>
+
+</body>
+</html>
